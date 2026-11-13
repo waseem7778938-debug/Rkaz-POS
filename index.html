@@ -17,20 +17,43 @@
         th { background: #007bff; color: white; }
         .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .lang-select { width: 150px; }
+        .reports-box { display: flex; gap: 15px; margin-bottom: 20px; }
+        .report-card { flex: 1; background: #e9ecef; padding: 15px; border-radius: 6px; text-align: center; }
+        .report-card h4 { margin: 0 0 10px 0; color: #555; }
+        .report-card p { font-size: 20px; font-weight: bold; color: #007bff; margin: 0; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- شريط العلوية للتحكم باللغة -->
+    <!-- شريط التحكم باللغة -->
     <div class="top-bar">
         <h2 id="main-heading">نظام ركاز المحاسبي المتكامل</h2>
         <div>
-            <label for="langSwitch" id="lang-label">اللغة / Language:</label>
+            <label for="langSwitch" id="lang-label">اللغة:</label>
             <select id="langSwitch" class="lang-select" onchange="changeLanguage(this.value)">
                 <option value="ar" selected>العربية (Arabic)</option>
                 <option value="en">English (الإنجليزية)</option>
             </select>
+        </div>
+    </div>
+
+    <!-- صندوق التقارير المالية والأرباح -->
+    <div class="section">
+        <h3 id="reports-title">التقارير المالية المختصرة</h3>
+        <div class="reports-box">
+            <div class="report-card">
+                <h4 id="rep-sales">إجمالي المبيعات</h4>
+                <p id="totalSalesVal">0.00</p>
+            </div>
+            <div class="report-card">
+                <h4 id="rep-profits">إجمالي الأرباح</h4>
+                <p id="totalProfitsVal">0.00</p>
+            </div>
+            <div class="report-card">
+                <h4 id="rep-invoices">عدد الفواتير</h4>
+                <p id="totalInvoicesVal">0</p>
+            </div>
         </div>
     </div>
 
@@ -52,8 +75,9 @@
             <thead>
                 <tr>
                     <th id="th-name">المنتج</th>
-                    <th id="th-price">السعر</th>
-                    <th id="th-stock">المخزون المتبقي</th>
+                    <th id="th-price">سعر البيع</th>
+                    <th id="th-cost">التكلفة</th>
+                    <th id="th-stock">المخزون</th>
                     <th id="th-action">إجراء</th>
                 </tr>
             </thead>
@@ -65,12 +89,15 @@
 </div>
 
 <script>
-    // قاموس النصوص للغتين (العربية والإنجليزية)
     const translations = {
         ar: {
             pageTitle: "نظام ركاز الشامل - نقاط البيع والمحاسبة",
             mainHeading: "نظام ركاز المحاسبي المتكامل",
             langLabel: "اللغة:",
+            reportsTitle: "التقارير المالية المختصرة",
+            repSales: "إجمالي المبيعات",
+            repProfits: "إجمالي الأرباح",
+            repInvoices: "عدد الفواتير",
             addProdTitle: "إضافة منتج جديد للمخزون",
             prodName: "اسم المنتج",
             prodBarcode: "الباركود",
@@ -80,17 +107,22 @@
             saveBtn: "حفظ المنتج",
             tableTitle: "قائمة المنتجات والمخزون الحالي",
             thName: "المنتج",
-            thPrice: "السعر",
-            thStock: "المخزون المتبقي",
+            thPrice: "سعر البيع",
+            thCost: "التكلفة",
+            thStock: "المخزون",
             thAction: "إجراء",
             saleBtn: "بيع (1)",
             successAdd: "تمت إضافة المنتج بنجاح",
-            errorMsg: "الرجاء إدخال اسم المنتج وسعر البيع على الأقل"
+            errorMsg: "الرجاء إدخال اسم المنتج وسعر البيع والتكلفة"
         },
         en: {
             pageTitle: "Rkaz Comprehensive System - POS & Accounting",
             mainHeading: "Rkaz Integrated Accounting System",
             langLabel: "Language:",
+            reportsTitle: "Financial Reports Summary",
+            repSales: "Total Sales",
+            repProfits: "Total Profits",
+            repInvoices: "Total Invoices",
             addProdTitle: "Add New Product to Inventory",
             prodName: "Product Name",
             prodBarcode: "Barcode",
@@ -101,28 +133,31 @@
             tableTitle: "Product List & Current Inventory",
             thName: "Product",
             thPrice: "Price",
-            thStock: "Remaining Stock",
+            thCost: "Cost",
+            thStock: "Stock",
             thAction: "Action",
             saleBtn: "Sell (1)",
             successAdd: "Product added successfully",
-            errorMsg: "Please enter at least the product name and selling price"
+            errorMsg: "Please enter product name, price, and cost"
         }
     };
 
-    let currentLang = 'ar'; // اللغة الافتراضية عربية
+    let currentLang = 'ar';
 
     function changeLanguage(lang) {
         currentLang = lang;
         const t = translations[lang];
 
-        // ضبط اتجاه الصفحة حسب اللغة (RTL للعربية، LTR للإنجليزية)
         document.documentElement.lang = lang;
         document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
 
-        // تحديث النصوص في الواجهة
         document.getElementById('page-title').innerText = t.pageTitle;
         document.getElementById('main-heading').innerText = t.mainHeading;
         document.getElementById('lang-label').innerText = t.langLabel;
+        document.getElementById('reports-title').innerText = t.reportsTitle;
+        document.getElementById('rep-sales').innerText = t.repSales;
+        document.getElementById('rep-profits').innerText = t.repProfits;
+        document.getElementById('rep-invoices').innerText = t.repInvoices;
         document.getElementById('add-prod-title').innerText = t.addProdTitle;
         document.getElementById('prodName').placeholder = t.prodName;
         document.getElementById('prodBarcode').placeholder = t.prodBarcode;
@@ -133,16 +168,17 @@
         document.getElementById('table-title').innerText = t.tableTitle;
         document.getElementById('th-name').innerText = t.thName;
         document.getElementById('th-price').innerText = t.thPrice;
+        document.getElementById('th-cost').innerText = t.thCost;
         document.getElementById('th-stock').innerText = t.thStock;
         document.getElementById('th-action').innerText = t.thAction;
 
-        loadProducts();
+        loadData();
     }
 
-    // جلب وعرض المنتجات
-    async function loadProducts() {
-        const res = await fetch('/api/products');
-        const products = await res.json();
+    async function loadData() {
+        // جلب المنتجات
+        const resProd = await fetch('/api/products');
+        const products = await resProd.json();
         const tbody = document.getElementById('productsTable');
         tbody.innerHTML = '';
         
@@ -153,14 +189,21 @@
                 <tr>
                     <td>${p.name}</td>
                     <td>${p.price}</td>
+                    <td>${p.cost}</td>
                     <td>${p.stock}</td>
-                    <td><button style="background:#007bff; width:auto; padding:5px 10px;" onclick="quickSale(${p.id}, ${p.price})">${t.saleBtn}</button></td>
+                    <td><button style="background:#007bff; width:auto; padding:5px 10px;" onclick="quickSale(${p.id}, ${p.price}, ${p.cost})">${t.saleBtn}</button></td>
                 </tr>
             `;
         });
+
+        // جلب التقارير
+        const resRep = await fetch('/api/reports');
+        const report = await resRep.json();
+        document.getElementById('totalSalesVal').innerText = (report.total_sales || 0) + ' ر.س';
+        document.getElementById('totalProfitsVal').innerText = (report.total_profits || 0) + ' ر.س';
+        document.getElementById('totalInvoicesVal').innerText = (report.total_invoices || 0);
     }
 
-    // إضافة منتج جديد
     async function addProduct() {
         const t = translations[currentLang];
         const name = document.getElementById('prodName').value;
@@ -169,7 +212,7 @@
         const cost = parseFloat(document.getElementById('prodCost').value);
         const stock = parseInt(document.getElementById('prodStock').value);
 
-        if(!name || !price) {
+        if(!name || isNaN(price) || isNaN(cost)) {
             alert(t.errorMsg);
             return;
         }
@@ -182,27 +225,27 @@
 
         const data = await res.json();
         alert(data.message ? t.successAdd : 'تمت العملية');
-        loadProducts();
+        loadData();
     }
 
-    // عملية بيع سريعة
-    async function quickSale(productId, price) {
+    async function quickSale(productId, price, cost) {
+        const profit = price - cost;
         const res = await fetch('/api/sales', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 total_amount: price,
-                items: [{ product_id: productId, quantity: 1, price: price }]
+                total_profit: profit,
+                items: [{ product_id: productId, quantity: 1, price: price, cost: cost }]
             })
         });
 
         const data = await res.json();
         alert(data.message);
-        loadProducts();
+        loadData();
     }
 
-    // التحميل الأول للصفحة باللغة الافتراضية (العربية)
-    loadProducts();
+    loadData();
 </script>
 
 </body>
