@@ -3,30 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام ركاز لنقاط البيع - Rkaz POS</title>
+    <title>نظام ركاز الشامل - نقاط البيع والمحاسبة</title>
     <style>
-        body {
-            font-family: Tahoma, sans-serif;
-            background-color: #f4f6f9;
-            text-align: center;
-            padding: 50px;
-        }
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
-            display: inline-block;
-        }
-        h1 { color: #2c3e50; }
-        p { color: #7f8c8d; }
+        body { font-family: Tahoma, sans-serif; background: #f4f6f9; margin: 0; padding: 20px; direction: rtl; }
+        h2 { color: #333; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .section { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #ddd; }
+        input, button { padding: 10px; margin: 5px 0; font-size: 16px; width: 100%; box-sizing: border-box; }
+        button { background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #218838; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+        th { background: #007bff; color: white; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>نظام ركاز لنقاط البيع (Rkaz POS)</h1>
-        <p>البرنامج يعمل بنجاح وجاهز لإدارة العمليات!</p>
+
+<div class="container">
+    <h2> نظام ركاز المحاسبي المتكامل (POS والمخزون)</h2>
+
+    <!-- قسم إضافة منتج جديد -->
+    <div class="section">
+        <h3>إضافة منتج جديد للمخزون</h3>
+        <input type="text" id="prodName" placeholder="اسم المنتج">
+        <input type="text" id="prodBarcode" placeholder="الباركود">
+        <input type="number" id="prodPrice" placeholder="سعر البيع">
+        <input type="number" id="prodCost" placeholder="سعر الشراء (التكلفة)">
+        <input type="number" id="prodStock" placeholder="الكمية الأولية في المخزون">
+        <button onclick="addProduct()">حفظ المنتج</button>
     </div>
+
+    <!-- قسم عرض المنتجات والمخزون -->
+    <div class="section">
+        <h3>قائمة المنتجات والمخزون الحالي</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>المنتج</th>
+                    <th>السعر</th>
+                    <th>المخزون المتبقي</th>
+                    <th>إجراء</th>
+                </tr>
+            </thead>
+            <tbody id="productsTable">
+                <!-- سيتم تعبئتها تلقائياً عبر الجافاسكريبت -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // جلب وعرض المنتجات عند فتح الصفحة
+    async function loadProducts() {
+        const res = await fetch('/api/products');
+        const products = await res.json();
+        const tbody = document.getElementById('productsTable');
+        tbody.innerHTML = '';
+        
+        products.forEach(p => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${p.name}</td>
+                    <td>${p.price} ر.س</td>
+                    <td>${p.stock}</td>
+                    <td><button style="background:#007bff; width:auto; padding:5px 10px;" onclick="quickSale(${p.id}, ${p.price})">بيع (1)</button></td>
+                </tr>
+            `;
+        });
+    }
+
+    // إضافة منتج جديد
+    async function addProduct() {
+        const name = document.getElementById('prodName').value;
+        const barcode = document.getElementById('prodBarcode').value;
+        const price = parseFloat(document.getElementById('prodPrice').value);
+        const cost = parseFloat(document.getElementById('prodCost').value);
+        const stock = parseInt(document.getElementById('prodStock').value);
+
+        if(!name || !price) {
+            alert('الرجاء إدخال اسم المنتج وسعر البيع على الأقل');
+            return;
+        }
+
+        const res = await fetch('/api/products', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, barcode, price, cost, stock })
+        });
+
+        const data = await res.json();
+        alert(data.message || 'تمت العملية');
+        loadProducts();
+    }
+
+    // عملية بيع سريعة لصنف واحد
+    async function quickSale(productId, price) {
+        const res = await fetch('/api/sales', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                total_amount: price,
+                items: [{ product_id: productId, quantity: 1, price: price }]
+            })
+        });
+
+        const data = await res.json();
+        alert(data.message);
+        loadProducts();
+    }
+
+    // تحميل المنتجات فور فتح الصفحة
+    loadProducts();
+</script>
+
 </body>
 </html>
-
