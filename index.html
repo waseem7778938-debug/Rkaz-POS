@@ -3,70 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام ركاز الشامل - نقاط البيع والمحاسبة</title>
+    <title id="page-title">نظام ركاز الشامل - نقاط البيع والمحاسبة</title>
     <style>
-        body { font-family: Tahoma, sans-serif; background: #f4f6f9; margin: 0; padding: 20px; direction: rtl; }
-        h2 { color: #333; }
+        body { font-family: Tahoma, sans-serif; background: #f4f6f9; margin: 0; padding: 20px; }
+        h2, h3 { color: #333; }
         .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .section { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #ddd; }
-        input, button { padding: 10px; margin: 5px 0; font-size: 16px; width: 100%; box-sizing: border-box; }
+        input, button, select { padding: 10px; margin: 5px 0; font-size: 16px; width: 100%; box-sizing: border-box; }
         button { background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; }
         button:hover { background: #218838; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
         th { background: #007bff; color: white; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .lang-select { width: 150px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2> نظام ركاز المحاسبي المتكامل (POS والمخزون)</h2>
+    <!-- شريط العلوية للتحكم باللغة -->
+    <div class="top-bar">
+        <h2 id="main-heading">نظام ركاز المحاسبي المتكامل</h2>
+        <div>
+            <label for="langSwitch" id="lang-label">اللغة / Language:</label>
+            <select id="langSwitch" class="lang-select" onchange="changeLanguage(this.value)">
+                <option value="ar" selected>العربية (Arabic)</option>
+                <option value="en">English (الإنجليزية)</option>
+            </select>
+        </div>
+    </div>
 
     <!-- قسم إضافة منتج جديد -->
     <div class="section">
-        <h3>إضافة منتج جديد للمخزون</h3>
+        <h3 id="add-prod-title">إضافة منتج جديد للمخزون</h3>
         <input type="text" id="prodName" placeholder="اسم المنتج">
         <input type="text" id="prodBarcode" placeholder="الباركود">
         <input type="number" id="prodPrice" placeholder="سعر البيع">
         <input type="number" id="prodCost" placeholder="سعر الشراء (التكلفة)">
         <input type="number" id="prodStock" placeholder="الكمية الأولية في المخزون">
-        <button onclick="addProduct()">حفظ المنتج</button>
+        <button id="save-btn" onclick="addProduct()">حفظ المنتج</button>
     </div>
 
     <!-- قسم عرض المنتجات والمخزون -->
     <div class="section">
-        <h3>قائمة المنتجات والمخزون الحالي</h3>
+        <h3 id="table-title">قائمة المنتجات والمخزون الحالي</h3>
         <table>
             <thead>
                 <tr>
-                    <th>المنتج</th>
-                    <th>السعر</th>
-                    <th>المخزون المتبقي</th>
-                    <th>إجراء</th>
+                    <th id="th-name">المنتج</th>
+                    <th id="th-price">السعر</th>
+                    <th id="th-stock">المخزون المتبقي</th>
+                    <th id="th-action">إجراء</th>
                 </tr>
             </thead>
             <tbody id="productsTable">
-                <!-- سيتم تعبئتها تلقائياً عبر الجافاسكريبت -->
+                <!-- سيتم تعبئتها تلقائياً -->
             </tbody>
         </table>
     </div>
 </div>
 
 <script>
-    // جلب وعرض المنتجات عند فتح الصفحة
+    // قاموس النصوص للغتين (العربية والإنجليزية)
+    const translations = {
+        ar: {
+            pageTitle: "نظام ركاز الشامل - نقاط البيع والمحاسبة",
+            mainHeading: "نظام ركاز المحاسبي المتكامل",
+            langLabel: "اللغة:",
+            addProdTitle: "إضافة منتج جديد للمخزون",
+            prodName: "اسم المنتج",
+            prodBarcode: "الباركود",
+            prodPrice: "سعر البيع",
+            prodCost: "سعر الشراء (التكلفة)",
+            prodStock: "الكمية الأولية في المخزون",
+            saveBtn: "حفظ المنتج",
+            tableTitle: "قائمة المنتجات والمخزون الحالي",
+            thName: "المنتج",
+            thPrice: "السعر",
+            thStock: "المخزون المتبقي",
+            thAction: "إجراء",
+            saleBtn: "بيع (1)",
+            successAdd: "تمت إضافة المنتج بنجاح",
+            errorMsg: "الرجاء إدخال اسم المنتج وسعر البيع على الأقل"
+        },
+        en: {
+            pageTitle: "Rkaz Comprehensive System - POS & Accounting",
+            mainHeading: "Rkaz Integrated Accounting System",
+            langLabel: "Language:",
+            addProdTitle: "Add New Product to Inventory",
+            prodName: "Product Name",
+            prodBarcode: "Barcode",
+            prodPrice: "Selling Price",
+            prodCost: "Cost Price",
+            prodStock: "Initial Stock Quantity",
+            saveBtn: "Save Product",
+            tableTitle: "Product List & Current Inventory",
+            thName: "Product",
+            thPrice: "Price",
+            thStock: "Remaining Stock",
+            thAction: "Action",
+            saleBtn: "Sell (1)",
+            successAdd: "Product added successfully",
+            errorMsg: "Please enter at least the product name and selling price"
+        }
+    };
+
+    let currentLang = 'ar'; // اللغة الافتراضية عربية
+
+    function changeLanguage(lang) {
+        currentLang = lang;
+        const t = translations[lang];
+
+        // ضبط اتجاه الصفحة حسب اللغة (RTL للعربية، LTR للإنجليزية)
+        document.documentElement.lang = lang;
+        document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+
+        // تحديث النصوص في الواجهة
+        document.getElementById('page-title').innerText = t.pageTitle;
+        document.getElementById('main-heading').innerText = t.mainHeading;
+        document.getElementById('lang-label').innerText = t.langLabel;
+        document.getElementById('add-prod-title').innerText = t.addProdTitle;
+        document.getElementById('prodName').placeholder = t.prodName;
+        document.getElementById('prodBarcode').placeholder = t.prodBarcode;
+        document.getElementById('prodPrice').placeholder = t.prodPrice;
+        document.getElementById('prodCost').placeholder = t.prodCost;
+        document.getElementById('prodStock').placeholder = t.prodStock;
+        document.getElementById('save-btn').innerText = t.saveBtn;
+        document.getElementById('table-title').innerText = t.tableTitle;
+        document.getElementById('th-name').innerText = t.thName;
+        document.getElementById('th-price').innerText = t.thPrice;
+        document.getElementById('th-stock').innerText = t.thStock;
+        document.getElementById('th-action').innerText = t.thAction;
+
+        loadProducts();
+    }
+
+    // جلب وعرض المنتجات
     async function loadProducts() {
         const res = await fetch('/api/products');
         const products = await res.json();
         const tbody = document.getElementById('productsTable');
         tbody.innerHTML = '';
         
+        const t = translations[currentLang];
+
         products.forEach(p => {
             tbody.innerHTML += `
                 <tr>
                     <td>${p.name}</td>
-                    <td>${p.price} ر.س</td>
+                    <td>${p.price}</td>
                     <td>${p.stock}</td>
-                    <td><button style="background:#007bff; width:auto; padding:5px 10px;" onclick="quickSale(${p.id}, ${p.price})">بيع (1)</button></td>
+                    <td><button style="background:#007bff; width:auto; padding:5px 10px;" onclick="quickSale(${p.id}, ${p.price})">${t.saleBtn}</button></td>
                 </tr>
             `;
         });
@@ -74,6 +162,7 @@
 
     // إضافة منتج جديد
     async function addProduct() {
+        const t = translations[currentLang];
         const name = document.getElementById('prodName').value;
         const barcode = document.getElementById('prodBarcode').value;
         const price = parseFloat(document.getElementById('prodPrice').value);
@@ -81,7 +170,7 @@
         const stock = parseInt(document.getElementById('prodStock').value);
 
         if(!name || !price) {
-            alert('الرجاء إدخال اسم المنتج وسعر البيع على الأقل');
+            alert(t.errorMsg);
             return;
         }
 
@@ -92,11 +181,11 @@
         });
 
         const data = await res.json();
-        alert(data.message || 'تمت العملية');
+        alert(data.message ? t.successAdd : 'تمت العملية');
         loadProducts();
     }
 
-    // عملية بيع سريعة لصنف واحد
+    // عملية بيع سريعة
     async function quickSale(productId, price) {
         const res = await fetch('/api/sales', {
             method: 'POST',
@@ -112,7 +201,7 @@
         loadProducts();
     }
 
-    // تحميل المنتجات فور فتح الصفحة
+    // التحميل الأول للصفحة باللغة الافتراضية (العربية)
     loadProducts();
 </script>
 
