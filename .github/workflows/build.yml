@@ -1,16 +1,36 @@
 name: Build Rkaz POS EXE
-on: [push]
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
 jobs:
   build:
     runs-on: windows-latest
+    
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
+    - name: استنساخ الكود
+      uses: actions/checkout@v4
+      
+    - name: إعداد بيئة البناء
+      uses: actions/setup-dotnet@v4
       with:
-        node-version: '18'
-    - run: npm install
-    - run: npx pkg . --targets node18-win-x64 --output rkaz-pos.exe
-    - uses: actions/upload-artifact@v4
+        dotnet-version: '8.0.x'
+        
+    - name: استعادة الحزم
+      run: dotnet restore
+      
+    - name: بناء المشروع
+      run: dotnet build --configuration Release
+      
+    - name: نشر التطبيق
+      run: dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o ./publish
+      
+    - name: رفع الملفات كحزمة
+      uses: actions/upload-artifact@v4
       with:
-        name: Rkaz-POS-App
-        path: rkaz-pos.exe
+        name: Rkaz-POS-Setup
+        path: ./publish/
