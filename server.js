@@ -1,21 +1,17 @@
 const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
+const bodyParser = require('body-parser');
 const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname)));
+app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
-const dbFile = path.join(__dirname, 'database.sqlite');
-const db = new sqlite3.Database(dbFile, (err) => {
-    if (err) {
-        console.error('خطأ في الاتصال بقاعدة البيانات:', err.message);
-    } else {
-        console.log('تم الاتصال بقاعدة البيانات المحلية بنجاح.');
-    }
+const db = new sqlite3.Database('./rkaz_pos.db', (err) => {
+    if (err) console.error('خطأ في قاعدة البيانات:', err.message);
+    else console.log('تم الاتصال بقاعدة بيانات نظام ركاز بنجاح.');
 });
 
 db.serialize(() => {
@@ -23,79 +19,91 @@ db.serialize(() => {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         barcode TEXT UNIQUE,
+        unit TEXT DEFAULT 'حبة',
         price REAL NOT NULL,
         cost REAL NOT NULL,
-        stock INTEGER NOT NULL
+        discount REAL DEFAULT 0,
+        stock INTEGER NOT NULL,
+        min_stock INTEGER DEFAULT 5,
+        expiry_date TEXT
     )`);
 
-    db.run(`CREATE TABLE IF NOT EXISTS sales (
+    db.run(`CREATE TABLE IF NOT EXISTS invoices (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        invoice_type TEXT DEFAULT 'بيع',
+        payment_method TEXT DEFAULT 'نقدي',
+        customer_name TEXT DEFAULT 'عميل نقدي',
         total_amount REAL NOT NULL,
+        total_discount REAL DEFAULT 0,
+        net_amount REAL NOT NULL,
         total_profit REAL NOT NULL,
+        review_status TEXT DEFAULT 'قيد المراجعة',
+        cashier_name TEXT DEFAULT 'المشرف العام',
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
 
-    db.run(`CREATE TABLE IF NOT EXISTS sale_items (
+    db.run(`CREATE TABLE IF NOT EXISTS invoice_items (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        sale_id INTEGER,
+        invoice_id INTEGER,
         product_id INTEGER,
-        quantity INTEGER NOT NULL,
-        price REAL NOT NULL,
-        cost REAL NOT NULL,
-        FOREIGN KEY(sale_id) REFERENCES sales(id),
-        FOREIGN KEY(product_id) REFERENCES products(id)
+        product_name TEXT,
+        barcode TEXT,
+        quantity INTEGER,
+        original_price REAL,
+        discount_val REAL,
+        net_price REAL,
+        FOREIGN KEY(invoice_id) REFERENCES invoices(id)
     )`);
 });
 
-// جلب المنتجات
 app.get('/api/products', (req, res) => {
-    db.all("SELECT * FROM products", [], (err, rows) => {
+    db.all(`SELECT * FROM products ORDER BY id DESC`, [], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
     });
 });
 
-// إضافة منتج جديد
 app.post('/api/products', (req, res) => {
-    const { name, barcode, price, cost, stock } = req.body;
-    const query = `INSERT INTO products (name, barcode, price, cost, stock) VALUES (?, ?, ?, ?, ?)`;
-    db.run(query, [name, barcode, price, cost, stock], function(err) {
+    const { name, barcode, unit, price, cost, discount, stock, min_stock, expiry_date } = req.body;
+    db.run(`INSERT INTO products (name, barcode, unit, price, cost, discount, stock, min_stock, expiry_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [name, barcode, unit || 'حبة', price, cost, discount || 0, stock, min_stock || 5, expiry_date || null], function(err) {
         if (err) return res.status(500).json({ error: err.message });
-        res.json({ id: this.lastID, message: "تمت إضافة المنتج بنجاح" });
+        res.json({ message: 'تم حفظ الصنف بنجاح', productId: this.lastID });
     });
 });
 
-// إتمام عملية بيع وحساب الربح (سعر البيع - التكلفة)
+app.get('/api/invoices', (req, res) => {
+    db.all(`SELECT * FROM invoices ORDER BY id DESC LIMIT 50`, [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
 app.post('/api/sales', (req, res) => {
-    const { items, total_amount, total_profit } = req.body; 
-
-    db.run(`INSERT INTO sales (total_amount, total_profit) VALUES (?, ?)`, [total_amount, total_profit], function(err) {
+    const { invoice_type, payment_method, customer_name, total_amount, total_discount, net_amount, total_profit, items } = req.body;
+    db.run(`INSERT INTO invoices (invoice_type, payment_method, customer_name, total_amount, total_discount, net_amount, total_profit) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [invoice_type || 'بيع', payment_method || 'نقدي', customer_name || 'عميل نقدي', total_amount, total_discount, net_amount, total_profit], function(err) {
         if (err) return res.status(500).json({ error: err.message });
-        const saleId = this.lastID;
-
-        const stmt = db.prepare(`INSERT INTO sale_items (sale_id, product_id, quantity, price, cost) VALUES (?, ?, ?, ?, ?)`);
-        const updateStock = db.prepare(`UPDATE products SET stock = stock - ? WHERE id = ?`);
-
-        items.forEach(item => {
-            stmt.run(saleId, item.product_id, item.quantity, item.price, item.cost);
-            updateStock.run(item.quantity, item.product_id);
-        });
-
-        stmt.finalize();
-        updateStock.finalize();
-
-        res.json({ success: true, saleId: saleId, message: "تمت عملية البيع وتحديث المخزون بنجاح" });
+        const invoiceId = this.lastID;
+        if (items && Array.isArray(items)) {
+            items.forEach(item => {
+                db.run(`INSERT INTO invoice_items (invoice_id, product_id, product_name, barcode, quantity, original_price, discount_val, net_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+                    [invoiceId, item.id, item.name, item.barcode, item.quantity, item.originalPrice, item.discountVal, (item.originalPrice - item.discountVal) * item.quantity]);
+                db.run(`UPDATE products SET stock = stock - ? WHERE id = ?`, [item.quantity, item.id]);
+            });
+        }
+        res.json({ message: `تم اعتماد الفاتورة رقم #${invoiceId} بنجاح`, invoiceId });
     });
 });
 
-// جلب التقارير المالية (إجمالي المبيعات والأرباح)
 app.get('/api/reports', (req, res) => {
-    db.get(`SELECT SUM(total_amount) as total_sales, SUM(total_profit) as total_profits, COUNT(id) as total_invoices FROM sales`, (err, row) => {
+    db.get(`SELECT COALESCE(SUM(net_amount),0) as total_sales, COALESCE(SUM(total_profit),0) as total_profits, COUNT(id) as total_invoices FROM invoices`, [], (err, row) => {
         if (err) return res.status(500).json({ error: err.message });
-        res.json(row || { total_sales: 0, total_profits: 0, total_invoices: 0 });
+        res.json(row);
     });
 });
 
 app.listen(PORT, () => {
-    console.log(`السيرفر يعمل حالياً على المنفذ ${PORT}`);
+    console.log(`خادم نظام ركاز يعمل على: http://localhost:${PORT}`);
 });
+
