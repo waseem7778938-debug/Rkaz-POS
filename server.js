@@ -97,13 +97,12 @@ app.post('/api/sales', (req, res) => {
 });
 
 app.get('/api/reports', (req, res) => {
-    db.get(`SELECT COALESCE(SUM(net_amount),0) as total_sales, COALESCE(SUM(total_profit),0) as total_profits, COUNT(id) as total_invoices FROM invoices`, [], (err, row) => {
+    db.get(`SELECT COALESCE(SUM(net_amount),0) as total_sales, COALESCE(SUM(total_profits),0) as total_profits, COUNT(id) as total_invoices FROM invoices`, [], (err, row) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(row);
     });
 });
 
-app.listen(PORT, () => {
-    console.log(`خادم نظام ركاز يعمل على: http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`خادم نظام ركاز السحابي يعمل على المنفذ: ${PORT}`);
 });
-
