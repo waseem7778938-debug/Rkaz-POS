@@ -1,11 +1,30 @@
-
 {
-  "name": "rkaz-pos",
-  "version": "1.0.0",
-  "description": "Rkaz POS System",
+  "name": "rkaz-pos-comprehensive",
+  "version": "2.5.0",
+  "description": "Rkaz Enterprise ERP & POS Comprehensive System - Al Manar Basket",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "electron": "electron ."
   },
-  "dependencies": {}
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "express": "^4.18.2",
+    "sqlite3": "^5.1.6"
+  },
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.0"
+  },
+  "build": {
+    "appId": "com.rkaz.pos.manar",
+    "productName": "Rkaz POS Manar",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "icon.ico"
+    }
+  }
 }
