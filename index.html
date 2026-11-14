@@ -3,293 +3,207 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام ركاز الشامل ERP & POS</title>
+    <title>نظام ركاز الشامل - ERP & POS</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root {
-            --bg-gradient: linear-gradient(135deg, #070e1b 0%, #112240 50%, #0a192f 100%);
-            --glass-bg: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(56, 189, 248, 0.25);
-            --text-color: #f8fafc;
-            --accent-color: #38bdf8;
-            --btn-green: #10b981;
-            --btn-green-hover: #059669;
-        }
-        * { box-sizing: border-box; }
-        body { font-family: Tahoma, sans-serif; background: var(--bg-gradient); color: var(--text-color); margin: 0; padding: 20px; min-height: 100vh; }
-        .container { max-width: 1300px; margin: auto; background: rgba(10, 18, 34, 0.85); backdrop-filter: blur(30px); padding: 25px; border-radius: 24px; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8); border: 1px solid var(--glass-border); }
-        .top-bar { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--glass-border); padding-bottom: 15px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
-        .brand-box { display: flex; align-items: center; gap: 15px; }
-        .brand-logo { width: 55px; height: 55px; background: linear-gradient(135deg, #1e3a8a, #0284c7); border-radius: 14px; display: flex; justify-content: center; align-items: center; font-size: 26px; border: 1px solid var(--accent-color); }
-        .nav-tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; background: var(--glass-bg); padding: 10px; border-radius: 16px; border: 1px solid var(--glass-border); }
-        .tab-btn { background: transparent; color: #94a3b8; border: 1px solid transparent; padding: 10px 18px; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.3s; }
-        .tab-btn.active, .tab-btn:hover { background: rgba(56, 189, 248, 0.2); color: var(--accent-color); border-color: var(--accent-color); }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        .section { background: var(--glass-bg); backdrop-filter: blur(15px); border: 1px solid var(--glass-border); padding: 20px; border-radius: 18px; margin-bottom: 20px; }
-        .grid-inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin-top: 12px; }
-        input, select { background: rgba(255, 255, 255, 0.06); border: 1px solid var(--glass-border); color: #fff; padding: 12px; font-size: 14px; width: 100%; border-radius: 10px; outline: none; }
-        input:focus, select:focus { border-color: var(--accent-color); box-shadow: 0 0 12px rgba(56, 189, 248, 0.4); }
-        select option { background: #0f172a; color: #fff; }
-        button.action-btn { background: var(--btn-green); color: white; border: none; border-radius: 10px; padding: 12px 18px; font-size: 14px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        button.action-btn:hover { background: var(--btn-green-hover); }
-        .reports-box { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
-        .report-card { flex: 1; min-width: 180px; background: var(--glass-bg); border: 1px solid var(--glass-border); padding: 16px; border-radius: 16px; text-align: center; }
-        .report-card h4 { margin: 0 0 8px 0; color: #94a3b8; font-size: 13px; }
-        .report-card p { font-size: 22px; font-weight: bold; color: var(--accent-color); margin: 0; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { border: 1px solid var(--glass-border); padding: 10px; text-align: center; font-size: 14px; }
-        th { background: rgba(56, 189, 248, 0.2); color: var(--accent-color); }
-        td { background: rgba(255, 255, 255, 0.02); }
-        .shortcuts-guide { background: rgba(56, 189, 248, 0.05); border: 1px dashed var(--accent-color); padding: 10px 15px; border-radius: 12px; margin-bottom: 20px; font-size: 13px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
-        .badge-key { background: #0f172a; border: 1px solid var(--accent-color); padding: 3px 8px; border-radius: 6px; color: var(--accent-color); font-family: monospace; font-weight: bold; }
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(7, 14, 27, 0.85); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-content { background: #0f172a; border: 1px solid var(--accent-color); width: 90%; max-width: 700px; border-radius: 20px; padding: 25px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f172a; color: #f8fafc; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
     </style>
 </head>
-<body>
-
-<div class="container">
-    <div class="top-bar">
-        <div class="brand-box">
-            <div class="brand-logo">🛡️</div>
-            <div>
-                <h2 style="margin:0; color:#fff;">نظام ركاز المحاسبي (RKAZ ERP)</h2>
-                <span style="font-size:12px; color:var(--accent-color);">منظومة نقاط البيع والإدارة المؤسسية المتقدمة</span>
-            </div>
+<body class="h-screen flex flex-col overflow-hidden">
+    <!-- الشريط العلوي -->
+    <header class="glass px-6 py-3 flex justify-between items-center border-b border-slate-700">
+        <div class="flex items-center gap-3">
+            <div class="bg-blue-600 text-white p-2 rounded-xl shadow-lg"><i class="fa-solid fa-cash-register text-xl"></i></div>
+            <h1 class="text-xl font-bold tracking-wider">نظام ركاز الشامل <span class="text-xs bg-blue-500/20 text-blue-400 px-2 py-1 rounded-md border border-blue-500/30">ERP & POS</span></h1>
         </div>
-        <div style="display:flex; gap:10px; flex-wrap:wrap;">
-            <button class="action-btn" style="background:#0284c7;" onclick="toggleHelpModal(true)">دليل الاختصارات (F1)</button>
-            <button class="action-btn" style="background:#ef4444;" onclick="voidEntireInvoice()">إلغاء الفاتورة (Shift+Del)</button>
-            <button class="action-btn" style="background:#f59e0b; color:#000;" onclick="openShiftClose()">تصفية الوردية (F9)</button>
+        <div class="flex items-center gap-4 text-sm">
+            <span class="glass px-3 py-1.5 rounded-lg border border-slate-700"><i class="fa-solid fa-user-shield text-emerald-400 ml-2"></i> المشرف العام</span>
+            <span id="live-clock" class="glass px-3 py-1.5 rounded-lg font-mono text-cyan-400">00:00:00</span>
         </div>
-    </div>
+    </header>
 
-    <div class="shortcuts-guide">
-        <span><span class="badge-key">F1</span> دليل المساعدة</span>
-        <span><span class="badge-key">F2</span> بحث الباركود</span>
-        <span><span class="badge-key">F4</span> اعتماد البيع</span>
-        <span><span class="badge-key">F8</span> حذف الصنف الأخير</span>
-        <span><span class="badge-key">Shift+Del</span> إلغاء الفاتورة بالكامل</span>
-        <span><span class="badge-key">F9</span> الوردية</span>
-    </div>
-
-    <div class="reports-box">
-        <div class="report-card"><h4>قيمة المخزون (Inventory)</h4><p id="totalInventoryVal">0.00 ر.س</p></div>
-        <div class="report-card"><h4>هامش الربح (Profit)</h4><p id="totalProfitsVal">0.00 ر.س</p></div>
-        <div class="report-card"><h4>إجمالي المبيعات (Sales)</h4><p id="totalSalesVal">0.00 ر.س</p></div>
-        <div class="report-card"><h4>عدد الفواتير (Invoices)</h4><p id="totalInvoicesVal">0</p></div>
-    </div>
-
-    <div class="nav-tabs">
-        <button class="tab-btn active" onclick="switchTab('posTab', this)">🛒 شاشة الكاشير ونقاط البيع (POS)</button>
-        <button class="tab-btn" onclick="switchTab('inventoryTab', this)">📦 إدارة المخازن والأصناف</button>
-    </div>
-
-    <!-- شاشة الكاشير -->
-    <div id="posTab" class="tab-content active">
-        <div class="section">
-            <h3 style="margin-top:0; color:var(--accent-color);">🧾 فاتورة المبيعات والتفاصيل</h3>
-            <div style="display:flex; gap:12px; margin-bottom:15px;">
-                <input type="text" id="posBarcodeInput" placeholder="امسح الباركود أو ابحث باسم الصنف واضغط Enter (F2)..." style="font-size:16px; border-color:var(--accent-color);" onkeydown="handlePosScan(event)">
-                <button class="action-btn" style="background:#0284c7;" onclick="scanBarcodeManual()">إضافة صنف</button>
+    <!-- المحتوى الرئيسي -->
+    <main class="flex-1 flex p-4 gap-4 overflow-hidden">
+        <!-- قسم المبيعات والكاشير -->
+        <section class="w-2/3 flex flex-col gap-4">
+            <div class="glass p-4 rounded-2xl flex gap-2">
+                <input type="text" id="barcode-input" placeholder="امسح الباركود أو ابحث عن الصنف (F2)..." class="flex-1 bg-slate-800 border border-slate-700 px-4 py-2 rounded-xl focus:outline-none focus:border-blue-500 text-white">
+                <button onclick="loadProducts()" class="bg-blue-600 hover:bg-blue-500 px-6 py-2 rounded-xl font-bold transition shadow-lg shadow-blue-600/30">بحث</button>
             </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>الصنف والباركود</th>
-                        <th>الوحدة</th>
-                        <th>الكمية</th>
-                        <th>السعر</th>
-                        <th>الإجمالي</th>
-                        <th>إجراء الحذف</th>
-                    </tr>
-                </thead>
-                <tbody id="detailed-invoice-body">
-                    <tr><td colspan="6" style="color:#94a3b8; padding:20px;">السلة فارغة حالياً.</td></tr>
-                </tbody>
-            </table>
-            <div style="margin-top:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px;">
+            <div class="flex-1 glass rounded-2xl p-4 overflow-y-auto">
+                <table class="w-full text-right border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-700 text-slate-400 text-sm">
+                            <th class="py-2 px-3">الصنف</th>
+                            <th class="py-2 px-3">السعر</th>
+                            <th class="py-2 px-3">الكمية</th>
+                            <th class="py-2 px-3">الإجمالي</th>
+                            <th class="py-2 px-3 text-center">حذف</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cart-table-body">
+                        <!-- العناصر المضافة تفاعلياً -->
+                    </tbody>
+                </table>
+            </div>
+            <!-- ملخص الفاتورة وأزرار العمليات -->
+            <div class="glass p-4 rounded-2xl flex justify-between items-center">
                 <div>
-                    <span style="color:#94a3b8;">الصافي المطلوب:</span>
-                    <span id="final-net-sum" style="font-size:26px; color:#10b981; font-weight:bold; margin-right:10px;">0.00 ر.س</span>
+                    <span class="text-slate-400 text-sm">الإجمالي الصافي:</span>
+                    <h2 id="grand-total" class="text-3xl font-extrabold text-emerald-400">0.00 ر.س</h2>
                 </div>
-                <div style="display:flex; gap:10px;">
-                    <button class="action-btn" style="background:#ef4444;" onclick="voidEntireInvoice()">إلغاء الفاتورة (Shift+Del)</button>
-                    <button class="action-btn" style="padding:14px 25px; font-size:16px;" onclick="completeSale()">اعتماد وطباعة (F4)</button>
+                <div class="flex gap-2">
+                    <button onclick="checkout('نقدي')" class="bg-emerald-600 hover:bg-emerald-500 px-6 py-3 rounded-xl font-bold transition shadow-lg shadow-emerald-600/30"><i class="fa-solid fa-money-bill-wave ml-2"></i> دفع نقدي (F1)</button>
+                    <button onclick="checkout('شبكة')" class="bg-indigo-600 hover:bg-indigo-500 px-6 py-3 rounded-xl font-bold transition shadow-lg shadow-indigo-600/30"><i class="fa-solid fa-credit-card ml-2"></i> شبكة (F4)</button>
                 </div>
             </div>
-        </div>
-    </div>
+        </section>
 
-    <!-- المخازن -->
-    <div id="inventoryTab" class="tab-content">
-        <div class="section">
-            <h3 style="margin-top:0;">📦 تعريف صنف جديد</h3>
-            <div class="grid-inputs">
-                <input type="text" id="prodName" placeholder="اسم الصنف">
-                <input type="text" id="prodBarcode" placeholder="الباركود">
-                <input type="number" id="prodPrice" placeholder="سعر البيع">
-                <input type="number" id="prodCost" placeholder="سعر التكلفة">
-                <input type="number" id="prodStock" placeholder="الكمية">
+        <!-- لوحة التحكم الجانبية والأصناف السريعة -->
+        <section class="w-1/3 flex flex-col gap-4">
+            <div class="glass p-4 rounded-2xl flex-1 flex flex-col">
+                <h3 class="font-bold text-slate-300 mb-3 border-b border-slate-700 pb-2"><i class="fa-solid fa-boxes-stacked ml-2 text-blue-400"></i> الأصناف السريعة</h3>
+                <div id="products-grid" class="grid grid-cols-2 gap-2 overflow-y-auto flex-1">
+                    <!-- يتم تعبئتها ديناميكياً -->
+                </div>
             </div>
-            <button class="action-btn" style="margin-top:15px; width:100%;" onclick="addProduct()">حفظ الصنف</button>
-        </div>
-        <div class="section">
-            <h3 style="margin-top:0;">📋 دليل الأصناف</h3>
-            <table>
-                <thead><tr><th>الصنف والباركود</th><th>السعر</th><th>التكلفة</th><th>الرصيد</th><th>إضافة</th></tr></thead>
-                <tbody id="productsTable"></tbody>
-            </table>
-        </div>
-    </div>
-</div>
+            <div class="glass p-4 rounded-2xl flex justify-around text-center">
+                <div>
+                    <span class="text-xs text-slate-400 block">إجمالي مبيعات اليوم</span>
+                    <span id="rep-sales" class="text-lg font-bold text-cyan-400">0.00</span>
+                </div>
+                <div class="border-r border-slate-700"></div>
+                <div>
+                    <span class="text-xs text-slate-400 block">إجمالي الأرباح</span>
+                    <span id="rep-profits" class="text-lg font-bold text-emerald-400">0.00</span>
+                </div>
+            </div>
+        </section>
+    </main>
 
-<!-- دليل الاختصارات -->
-<div id="helpModal" class="modal-overlay">
-    <div class="modal-content">
-        <h3 style="color:var(--accent-color);">📖 دليل اختصارات الكاشير - ركاز</h3>
-        <table style="width:100%; text-align:right; margin-top:10px;">
-            <tr><td><span class="badge-key">F1</span></td><td>فتح دليل المساعدة.</td></tr>
-            <tr><td><span class="badge-key">F2</span></td><td>الانتقال لخانة البحث والباركود.</td></tr>
-            <tr><td><span class="badge-key">F4</span></td><td>اعتماد الفاتورة وطباعة الإيصال.</td></tr>
-            <tr><td><span class="badge-key">F8</span></td><td>حذف آخر صنف أضيف للسلة.</td></tr>
-            <tr><td><span class="badge-key">Shift + Del</span></td><td>إلغاء الفاتورة بالكامل (برمز المشرف).</td></tr>
-            <tr><td><span class="badge-key">F9</span></td><td>تصفية الوردية وعهد الصندوق.</td></tr>
-        </table>
-        <button class="action-btn" style="background:#ef4444; width:100%; margin-top:15px;" onclick="toggleHelpModal(false)">إغلاق</button>
-    </div>
-</div>
+    <script>
+        // الساعة الحية
+        setInterval(() => {
+            document.getElementById('live-clock').innerText = new Date().toLocaleTimeString('en-US', { hour12: false });
+        }, 1000);
 
-<script>
-    let allProducts = [], activeInvoiceItems = [];
+        let cart = [];
+        let products = [];
 
-    function switchTab(tabId, btn) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
-        btn.classList.add('active');
-        loadAllData();
-    }
+        async function loadProducts() {
+            try {
+                const res = await fetch('/api/products');
+                products = await res.json();
+                const grid = document.getElementById('products-grid');
+                grid.innerHTML = '';
+                products.forEach(p => {
+                    grid.innerHTML += `
+                        <div onclick='addToCart(${JSON.stringify(p)})' class="bg-slate-800/80 hover:bg-blue-600/20 border border-slate-700 p-3 rounded-xl cursor-pointer transition text-center flex flex-col justify-between">
+                            <span class="font-bold text-sm truncate">${p.name}</span>
+                            <span class="text-xs text-emerald-400 font-mono mt-2">${p.price} ر.س</span>
+                        </div>
+                    `;
+                });
+            } catch (err) { console.error('خطأ في تحميل الأصناف:', err); }
+        }
 
-    function toggleHelpModal(show) { document.getElementById('helpModal').style.display = show ? 'flex' : 'none'; }
+        function addToCart(product) {
+            const existing = cart.find(item => item.id === product.id);
+            if (existing) {
+                existing.quantity++;
+            } else {
+                cart.push({ ...product, quantity: 1, originalPrice: product.price, discountVal: 0 });
+            }
+            renderCart();
+        }
 
-    async function loadAllData() {
-        try {
-            const res = await fetch('/api/products');
-            allProducts = await res.json();
-            const tbody = document.getElementById('productsTable');
+        function renderCart() {
+            const tbody = document.getElementById('cart-table-body');
             tbody.innerHTML = '';
-            let inventoryVal = 0;
-            allProducts.forEach(p => {
-                inventoryVal += (p.stock * p.cost);
-                tbody.innerHTML += `<tr><td style="text-align:right;"><strong>${p.name}</strong><br><small style="color:#94a3b8;">BC: ${p.barcode || 'N/A'}</small></td><td>${p.price}</td><td>${p.cost}</td><td>${p.stock}</td><td><button class="action-btn" style="background:#0284c7; padding:4px 10px;" onclick="addProductToInvoiceById(${p.id})">بيع</button></td></tr>`;
+            let grandTotal = 0;
+            cart.forEach((item, index) => {
+                const totalItemPrice = (item.originalPrice - item.discountVal) * item.quantity;
+                grandTotal += totalItemPrice;
+                tbody.innerHTML += `
+                    <tr class="border-b border-slate-800">
+                        <td class="py-3 px-3 font-medium">${item.name}</td>
+                        <td class="py-3 px-3">${item.originalPrice} ر.س</td>
+                        <td class="py-3 px-3"><input type="number" value="${item.quantity}" min="1" onchange="updateQty(${index}, this.value)" class="w-16 bg-slate-800 border border-slate-700 rounded text-center px-1"></td>
+                        <td class="py-3 px-3 text-emerald-400 font-bold">${totalItemPrice.toFixed(2)} ر.س</td>
+                        <td class="py-3 px-3 text-center"><button onclick="removeFromCart(${index})" class="text-red-400 hover:text-red-300"><i class="fa-solid fa-trash"></i></button></td>
+                    </tr>
+                `;
             });
-            document.getElementById('totalInventoryVal').innerText = inventoryVal.toFixed(2) + ' ر.س';
-
-            const repRes = await fetch('/api/reports');
-            const rep = await repRes.json();
-            document.getElementById('totalSalesVal').innerText = Number(rep.total_sales || 0).toFixed(2) + ' ر.س';
-            document.getElementById('totalProfitsVal').innerText = Number(rep.total_profits || 0).toFixed(2) + ' ر.س';
-            document.getElementById('totalInvoicesVal').innerText = rep.total_invoices || 0;
-        } catch(e) {}
-    }
-
-    function addProductToInvoiceById(id) {
-        const p = allProducts.find(item => item.id === id);
-        if (!p) return;
-        let existing = activeInvoiceItems.find(item => item.id === p.id);
-        if (existing) existing.quantity += 1;
-        else activeInvoiceItems.push({ id: p.id, name: p.name, barcode: p.barcode || '', unit: p.unit || 'حبة', quantity: 1, originalPrice: Number(p.price), cost: Number(p.cost) });
-        renderInvoiceTable();
-    }
-
-    function handlePosScan(e) { if (e.key === 'Enter') { e.preventDefault(); scanBarcodeManual(); } }
-    function scanBarcodeManual() {
-        const input = document.getElementById('posBarcodeInput'), val = input.value.trim();
-        const found = allProducts.find(p => p.barcode === val || p.name.includes(val));
-        if (found) { addProductToInvoiceById(found.id); input.value = ''; } else alert('الصنف غير موجود!');
-        input.focus();
-    }
-
-    function renderInvoiceTable() {
-        const tbody = document.getElementById('detailed-invoice-body');
-        tbody.innerHTML = '';
-        let grossSum = 0;
-        if (activeInvoiceItems.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" style="color:#94a3b8; padding:20px;">السلة فارغة حالياً.</td></tr>`;
-            document.getElementById('final-net-sum').innerText = '0.00 ر.س';
-            return;
+            document.getElementById('grand-total').innerText = grandTotal.toFixed(2) + ' ر.س';
         }
-        activeInvoiceItems.forEach((item, index) => {
-            let lg = item.originalPrice * item.quantity;
-            grossSum += lg;
-            tbody.innerHTML += `
-                <tr>
-                    <td style="text-align:right;"><strong>${item.name}</strong><br><small style="color:#94a3b8;">BC: ${item.barcode || 'N/A'}</small></td>
-                    <td>${item.unit}</td>
-                    <td>${item.quantity}</td>
-                    <td>${lg.toFixed(2)} ر.س</td>
-                    <td style="color:#10b981; font-weight:bold;">${lg.toFixed(2)} ر.س</td>
-                    <td><button class="action-btn" style="background:#ef4444; padding:4px 8px;" onclick="activeInvoiceItems.splice(${index},1);renderInvoiceTable();">حذف الصنف</button></td>
-                </tr>`;
-        });
-        document.getElementById('final-net-sum').innerText = grossSum.toFixed(2) + ' ر.س';
-    }
 
-    function voidEntireInvoice() {
-        if (activeInvoiceItems.length === 0) return alert('السلة فارغة أساساً!');
-        if (prompt('رمز المشرف لإلغاء الفاتورة بالكامل (1234):') !== '1234') {
-            return alert('رمز المشرف غير صحيح! تم إلغاء العملية.');
+        function updateQty(index, qty) {
+            cart[index].quantity = parseInt(qty) || 1;
+            renderCart();
         }
-        activeInvoiceItems = [];
-        renderInvoiceTable();
-        alert('تم إلغاء وتفريغ الفاتورة بالكامل بنجاح.');
-    }
 
-    async function completeSale() {
-        if (activeInvoiceItems.length === 0) return alert('السلة فارغة!');
-        let grossSum = 0, totalCost = 0;
-        activeInvoiceItems.forEach(item => {
-            grossSum += item.originalPrice * item.quantity;
-            totalCost += item.cost * item.quantity;
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            renderCart();
+        }
+
+        async function checkout(method) {
+            if (cart.length === 0) {
+                alert('السلة فارغة!');
+                return;
+            }
+            const netAmount = cart.reduce((sum, item) => sum + ((item.originalPrice - item.discountVal) * item.quantity), 0);
+            const totalCost = cart.reduce((sum, item) => sum + (item.cost * item.quantity), 0);
+            const totalProfit = netAmount - totalCost;
+
+            const invoiceData = {
+                invoice_type: 'بيع',
+                payment_method: method,
+                customer_name: 'عميل نقدي',
+                total_amount: netAmount,
+                total_discount: 0,
+                net_amount: netAmount,
+                total_profit: totalProfit,
+                items: cart
+            };
+
+            try {
+                const res = await fetch('/api/sales', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(invoiceData)
+                });
+                const result = await res.json();
+                alert(result.message);
+                cart = [];
+                renderCart();
+                loadReports();
+            } catch (err) {
+                alert('حدث خطأ أثناء حفظ الفاتورة');
+            }
+        }
+
+        async function loadReports() {
+            try {
+                const res = await fetch('/api/reports');
+                const data = await res.json();
+                document.getElementById('rep-sales').innerText = data.total_sales.toFixed(2) + ' ر.س';
+                document.getElementById('rep-profits').innerText = data.total_profits.toFixed(2) + ' ر.س';
+            } catch (err) { console.error(err); }
+        }
+
+        // اختصارات لوحة المفاتيح
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'F1') { e.preventDefault(); checkout('نقدي'); }
+            if (e.key === 'F4') { e.preventDefault(); checkout('شبكة'); }
+            if (e.key === 'F2') { e.preventDefault(); document.getElementById('barcode-input').focus(); }
         });
-        await fetch('/api/sales', {
-            method: 'POST', headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ total_amount: grossSum, total_discount: 0, net_amount: grossSum, total_profit: grossSum - totalCost, items: activeInvoiceItems })
-        });
-        alert('تم اعتماد وطباعة الفاتورة بنجاح!');
-        activeInvoiceItems = [];
-        renderInvoiceTable();
-        loadAllData();
-    }
 
-    async function addProduct() {
-        const body = {
-            name: document.getElementById('prodName').value, barcode: document.getElementById('prodBarcode').value,
-            price: parseFloat(document.getElementById('prodPrice').value), cost: parseFloat(document.getElementById('prodCost').value),
-            stock: parseInt(document.getElementById('prodStock').value) || 0
-        };
-        if (!body.name || isNaN(body.price)) return alert('أدخل بيانات الصنف بشكل صحيح!');
-        await fetch('/api/products', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
-        loadAllData(); alert('تم حفظ الصنف بنجاح!');
-    }
-
-    function openShiftClose() {
-        if (prompt('رمز المشرف لإغلاق الوردية (1234):') !== '1234') return alert('رمز غير صحيح!');
-        alert('تم تصفية وإغلاق الوردية المالية بنجاح.');
-    }
-
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'F1') { e.preventDefault(); toggleHelpModal(true); }
-        if (e.key === 'F2') { e.preventDefault(); document.getElementById('posBarcodeInput').focus(); }
-        if (e.key === 'F4') { e.preventDefault(); completeSale(); }
-        if (e.key === 'F8') { e.preventDefault(); activeInvoiceItems.pop(); renderInvoiceTable(); }
-        if (e.key === 'F9') { e.preventDefault(); openShiftClose(); }
-        if (e.shiftKey && e.key === 'Delete') { e.preventDefault(); voidEntireInvoice(); }
-        if (e.key === 'Escape') toggleHelpModal(false);
-    });
-
-    loadAllData();
-</script>
+        loadProducts();
+        loadReports();
+    </script>
 </body>
 </html>
+
