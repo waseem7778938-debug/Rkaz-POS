@@ -1,7 +1,7 @@
 {
-  "name": "rkaz-pos-comprehensive",
+  "name": "rkaz-pos-desktop",
   "version": "2.5.0",
-  "description": "Rkaz Enterprise ERP & POS Comprehensive System - Al Manar Basket",
+  "description": "Rkaz Enterprise ERP & POS Comprehensive System",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -17,14 +17,13 @@
     "electron-builder": "^24.9.0"
   },
   "build": {
-    "appId": "com.rkaz.pos.manar",
-    "productName": "Rkaz POS Manar",
+    "appId": "com.rkaz.pos",
+    "productName": "Rkaz POS",
     "directories": {
       "output": "dist"
     },
     "win": {
-      "target": "nsis",
-      "icon": "icon.ico"
+      "target": "nsis"
     }
   }
 }
